@@ -1,9 +1,9 @@
 using MarketDataGateway.Data;
 using MarketDataGateway.Models;
+using MarketDataGateway.Services;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,9 +22,16 @@ builder.Services.AddIdentityServer()
 builder.Services.AddAuthentication()
     .AddIdentityServerJwt();
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews().AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddRazorPages();
 
+builder.Services.AddTransient<IMarketContributionService, MarketContributionService>();
+#if DEBUG
+builder.Services.AddTransient<IMarketValidationService, MarketValidationServiceMock>();
+#else
+builder.Services.AddTransient<IMarketValidationService, MarketValidationService>();
+#endif
+builder.Services.AddTransient<IMarketContributionRepository, MarketContributionRepository>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

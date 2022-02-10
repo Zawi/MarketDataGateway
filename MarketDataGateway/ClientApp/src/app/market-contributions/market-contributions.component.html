@@ -1,0 +1,49 @@
+<ng-container *ngIf="{
+     contribs: contribs$ | async
+} as _">
+  <h1 id="tableLabel">Previous contributions</h1>
+
+  <p>This component demonstrates fetching data from the server.</p>
+
+  <p *ngIf="!_.contribs"><em>Loading...</em></p>
+
+  <table class='table table-striped' aria-labelledby="tableLabel" *ngIf="_.contribs">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Date</th>
+        <th>Instrument</th>
+        <th>Size</th>
+        <th>Price</th>
+        <th>Side</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let contrib of _.contribs">
+        <td>{{ contrib.marketDataType }}</td>
+        <td>{{ contrib.date }}</td>
+        <td>{{ contrib.marketData.instrumentId }}</td>
+        <td>{{ contrib.marketData.size }}</td>
+        <td>${{ contrib.marketData.price }}</td>
+        <td>{{ contrib.marketData.side }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h1>Submit Fx Quote</h1>
+  <div class="col-md-3">
+    <label for="instrument">Instrument: </label>
+    <input class="form-control" type="text" name="instrument" id="instrument" [(ngModel)]="instrumentId" />
+    <label for="size">Size: </label>
+    <input class="form-control" type="number" name="size" id="size" [(ngModel)]="size" />
+    <label for="srice">Price: </label>
+    <input class="form-control" type="number" name="price" ud="price" [(ngModel)]="price" />
+    <label for="side">Side: </label>
+    <select class="form-control" [(ngModel)]="side">
+      <option ngValue="Ask">Ask</option>
+      <option ngValue="Bid">Bid</option>
+    </select>
+    <button class="btn btn-primary mt-2" (click)="submitMarketData()">Submit</button>
+  </div>
+  <div *ngIf="errorMessage">Error is: <pre>{{ errorMessage }}</pre></div>
+</ng-container>
