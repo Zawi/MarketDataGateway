@@ -72,6 +72,71 @@ implementation a step further:
 - Anything else you feel may benefit your solution from a technical perspective.
 
 ## Implementation
+### Diagrams
+
+#### Class diagram
+``` mermaid
+classDiagram
+    class MarketContribution {
+        +Id int
+        +Date Date
+        +MarketDataType string
+        +UserId string
+        +RegulationFramework string
+    }
+    
+    class MarketData {
+        +InstrumentId string
+        +Price double
+        +Size double
+    }
+
+    class MarketDataSide{
+        <<enumeration>>
+        Bid
+        Ask
+    }
+    MarketContribution *-- MarketData: +MarketData
+    MarketData <|-- FxQuote
+    MarketData *-- MarketDataSide: +Side
+
+    class ValidationResponse {
+        +Id string
+    }
+
+    class ValidationResponseStatus {
+        <<enumeration>>
+        SUCCESS
+        ERROR
+    }
+    ValidationResponse *-- ValidationResponseStatus: +Status
+```
+
+#### Sequence diagram
+##### Adding a contribution
+``` mermaid
+sequenceDiagram
+    actor User
+    participant MarketContributionController
+    participant MarketContributionService
+    participant MarketValidationService
+    participant MarketContributionRepository
+    participant ApplicationDbContext
+    User->>MarketContributionController: POST FxQuote
+    MarketContributionController->>MarketContributionService: AddContribution(userId, "FxQuote", marketData)
+    MarketContributionService->>MarketValidationService: ValidateContribution(contrib)
+    MarketValidationService-->>MarketContributionService: ValidationStatus
+    alt SUCCESSFUL
+        MarketValidationService->>MarketContributionRepository: AddContribution(contrib)
+        MarketContributionRepository->>ApplicationDbContext: MarketContributions.Add(contribEntity)
+        MarketContributionRepository->>ApplicationDbContext: Save()
+        MarketContributionService-->>MarketContributionController: true
+        MarketContributionController-->>User: HTTP OK
+    else ERROR
+        MarketContributionService-->>MarketContributionController: false
+        MarketContributionController-->>User: HTTP Bad Request
+    end
+```
 
 ### Application structure
 This project is based on the ASP.NET MVC+Angular template provided by Visual Studio.
